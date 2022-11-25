@@ -94,7 +94,7 @@
 
   <?php
     $conn = open_db();
-    $resultados = $conn->query("select max(vencimento) from documentos");
+    $resultados = $conn->query("SELECT MAX(vencimento) FROM documentos WHERE situacao LIKE \"Em aberto\"");
     close_db($conn);
 
     $resultado = $resultados->fetch_array(MYSQLI_NUM);
