@@ -1,0 +1,10 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "author": "Diogo Schoninger (schoninger.diogo@gmail.com)",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
