@@ -15,6 +15,7 @@ Situation.init(
     description: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
   },
   { sequelize }
