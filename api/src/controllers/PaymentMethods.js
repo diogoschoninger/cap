@@ -22,7 +22,7 @@ export default {
       return res
         .json({
           error: true,
-          message: "Necessário enviar um campo 'description' não vazio.",
+          message: "Necessário campo 'description' não vazio.",
         })
         .end();
     }
@@ -45,18 +45,11 @@ export default {
   },
 
   async update(req, res) {
-    if (!req.params.id) {
+    if (!req.body.description || req.body.description === "") {
       return res
         .json({
           error: true,
-          message: "Necessário um ID na URL.",
-        })
-        .end();
-    } else if (!req.body.description || req.body.description === "") {
-      return res
-        .json({
-          error: true,
-          message: "Necessário enviar um campo 'description' não vazio.",
+          message: "Necessário campo 'description' não vazio.",
         })
         .end();
     }
