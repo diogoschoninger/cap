@@ -18,7 +18,7 @@ Situation.init(
       unique: true,
     },
   },
-  { sequelize }
+  { sequelize, paranoid: true }
 );
 
 export default Situation;

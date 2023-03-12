@@ -25,7 +25,7 @@ Document.init(
       allowNull: false,
     },
   },
-  { sequelize }
+  { sequelize, paranoid: true }
 );
 
 export default Document;
