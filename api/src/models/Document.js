@@ -7,8 +7,8 @@ class Document extends Model {}
 Document.init(
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
     },
@@ -17,11 +17,11 @@ Document.init(
       allowNull: false,
     },
     expiration: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     value: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL(11, 2),
       allowNull: false,
     },
   },
