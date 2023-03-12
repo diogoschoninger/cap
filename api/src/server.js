@@ -23,6 +23,10 @@ app.use(function (req, res, next) {
 
 app.use("/", router);
 
+app.use("*", (req, res) =>
+  res.json({ error: true, message: "Endpoint não existente." }).end()
+);
+
 app.listen(process.env.PORT, () => {
   console.log("Servidor rodando na porta " + process.env.PORT);
 });
