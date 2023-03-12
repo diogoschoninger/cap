@@ -18,6 +18,15 @@ export default {
   },
 
   async new(req, res) {
+    if (!req.body.description || req.body.description === "") {
+      return res
+        .json({
+          error: true,
+          message: "Necessário enviar um campo 'description' não vazio.",
+        })
+        .end();
+    }
+
     await PaymentMethod.create({
       description: req.body.description,
     })
