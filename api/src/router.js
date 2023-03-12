@@ -12,7 +12,8 @@ router.get("/documents", Documents.getAll);
 // Rotas de métodos de pagamento
 router
   .get("/payment-methods", PaymentMethods.getAll)
-  .post("/payment-methods", PaymentMethods.new);
+  .post("/payment-methods", PaymentMethods.new)
+  .put("/payment-methods/:id", PaymentMethods.update);
 
 // Rotas de situações
 router.get("/situations", Situations.getAll);
