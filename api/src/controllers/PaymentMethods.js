@@ -83,4 +83,25 @@ export default {
           .end();
       });
   },
+
+  async delete(req, res) {
+    await PaymentMethod.findByPk(req.params.id)
+      .then((paymentMethod) => paymentMethod.destroy())
+      .then((paymentMethod) => {
+        res
+          .json({
+            success: true,
+            paymentMethod,
+          })
+          .end();
+      })
+      .catch((err) => {
+        res
+          .json({
+            error: true,
+            message: "ID inválido.",
+          })
+          .end();
+      });
+  },
 };

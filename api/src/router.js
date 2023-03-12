@@ -13,7 +13,8 @@ router.get("/documents", Documents.getAll);
 router
   .get("/payment-methods", PaymentMethods.getAll)
   .post("/payment-methods", PaymentMethods.new)
-  .put("/payment-methods/:id", PaymentMethods.update);
+  .put("/payment-methods/:id", PaymentMethods.update)
+  .delete("/payment-methods/:id", PaymentMethods.delete);
 
 // Rotas de situações
 router.get("/situations", Situations.getAll);
