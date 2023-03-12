@@ -10,7 +10,9 @@ const router = express.Router();
 router.get("/documents", Documents.getAll);
 
 // Rotas de métodos de pagamento
-router.get("/payment-methods", PaymentMethods.getAll);
+router
+  .get("/payment-methods", PaymentMethods.getAll)
+  .post("/payment-methods", PaymentMethods.new);
 
 // Rotas de situações
 router.get("/situations", Situations.getAll);
