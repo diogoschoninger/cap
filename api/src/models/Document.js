@@ -24,14 +24,6 @@ Document.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    payment_method: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    situation: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
   },
   { sequelize }
 );
