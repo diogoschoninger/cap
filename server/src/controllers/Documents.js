@@ -1,136 +1,86 @@
-import Document from "../models/Document.js";
+import Document from '../models/Document.js'
 
 export default {
-  async getAll(req, res) {
-    await Document.findAll()
-      .then((documents) => {
-        res.json({ success: true, documents }).end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            errno: err.original.errno,
-            message: err.original.sqlMessage,
-          })
-          .end();
-      });
-  },
+	getAll(req, res) {
+		Document.findAll()
+			.then(documents =>
+				res.status(200).send({ documents }))
+			.catch(error =>
+				res.status(500).send({ message: error.original.sqlMessage }))
+	},
 
-  async new(req, res) {
-    if (
-      !req.body.description ||
-      !req.body.expiration ||
-      !req.body.value ||
-      !req.body.payment_method ||
-      !req.body.situation ||
-      req.body.description === "" ||
-      req.body.expiration === "" ||
-      req.body.value === "" ||
-      req.body.payment_method === "" ||
-      req.body.situation === ""
-    ) {
-      return res
-        .json({
-          error: true,
-          message:
-            "Necessário campos 'description', 'expiration', 'value', 'payment_method' e 'situation' não vazios.",
-        })
-        .end();
-    }
+	new(req, res) {
+		let body = req.body
 
-    await Document.create({
-      description: req.body.description.toUpperCase(),
-      expiration: req.body.expiration,
-      value: req.body.value,
-      payment_method: req.body.payment_method,
-      situation: req.body.situation,
-    })
-      .then((document) => {
-        res.json({ success: true, document }).end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            err,
-          })
-          .end();
-      });
-  },
+		if (
+			!body.description ||
+			!body.expiration ||
+			!body.payment_method ||
+			!body.situation ||
+			body.description === '' ||
+			body.expiration === '' ||
+			body.payment_method === '' ||
+			body.situation === ''
+		)
+			return res.status(400).send({
+				message: "Required non-empty fields: {'description', 'expiration', 'payment_method', 'situation'}"
+			})
 
-  async update(req, res) {
-    if (
-      !req.body.description ||
-      !req.body.expiration ||
-      !req.body.value ||
-      !req.body.payment_method ||
-      !req.body.situation ||
-      req.body.description === "" ||
-      req.body.expiration === "" ||
-      req.body.value === "" ||
-      req.body.payment_method === "" ||
-      req.body.situation === ""
-    ) {
-      return res
-        .json({
-          error: true,
-          message:
-            "Necessário campos 'description', 'expiration', 'value', 'payment_method' e 'situation' não vazios.",
-        })
-        .end();
-    }
+		Document.create({
+			description: body.description.toUpperCase(),
+			expiration: body.expiration,
+			value: body.value,
+			payment_method: body.payment_method,
+			situation: body.situation,
+		})
+			.then(document =>
+				res.status(201).send({ document }))
+			.catch(error =>
+				res.status(500).send({ error }))
+	},
 
-    await Document.findByPk(req.params.id)
-      .then((document) => {
-        if (!document) {
-          return Promise.reject("ID inválido");
-        }
+	update(req, res) {
+		let body = req.body
 
-        document.description = req.body.description.toUpperCase();
-        document.expiration = req.body.expiration;
-        document.value = req.body.value;
-        document.payment_method = req.body.payment_method;
-        document.situation = req.body.situation;
+		if (
+			!body.description ||
+			!body.expiration ||
+			!body.payment_method ||
+			!body.situation ||
+			body.description === '' ||
+			body.expiration === '' ||
+			body.payment_method === '' ||
+			body.situation === ''
+		)
+			return res.status(400).send({
+				message: "Required non-empty fields: {'description', 'expiration', 'payment_method', 'situation'}"
+			})
 
-        return document.save();
-      })
-      .then((document) => {
-        res
-          .json({
-            success: true,
-            document,
-          })
-          .end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            err,
-          })
-          .end();
-      });
-  },
+		Document.findByPk(req.params.id)
+			.then(document => {
+				if (!document)
+					return Promise.reject('Invalid ID')
 
-  async delete(req, res) {
-    await Document.findByPk(req.params.id)
-      .then((document) => document.destroy())
-      .then((document) => {
-        res
-          .json({
-            success: true,
-            document,
-          })
-          .end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            message: "ID inválido.",
-          })
-          .end();
-      });
-  },
-};
+				document.description = body.description.toUpperCase()
+				document.expiration = body.expiration
+				document.value = body.value
+				document.payment_method = body.payment_method
+				document.situation = body.situation
+
+				return document.save()
+			})
+			.then(document =>
+				res.status(200).send({ document }))
+			.catch(error =>
+				res.status(400).json({ error }))
+	},
+
+	delete(req, res) {
+		Document.findByPk(req.params.id)
+			.then(document => document.destroy())
+			.then(_document =>
+				res.status(204).send())
+			.catch(error =>
+				res.status(400).send({ message: 'Invalid ID' }))
+	},
+}

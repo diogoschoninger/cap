@@ -1,100 +1,48 @@
-import PaymentMethod from "../models/PaymentMethod.js";
+import PaymentMethod from '../models/PaymentMethod.js'
 
 export default {
-  async getAll(req, res) {
-    await PaymentMethod.findAll()
-      .then((paymentMethods) => {
-        res.json({ success: true, paymentMethods }).end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            errno: err.original.errno,
-            message: err.original.sqlMessage,
-          })
-          .end();
-      });
-  },
+	getAll(req, res) {
+		PaymentMethod.findAll()
+			.then(paymentMethods => 
+				res.status(200).send({ paymentMethods }))
+			.catch(error =>
+				res.status(500).send({ message: error.original.sqlMessage }))
+	},
 
-  async new(req, res) {
-    if (!req.body.description || req.body.description === "") {
-      return res
-        .json({
-          error: true,
-          message: "Necessário campo 'description' não vazio.",
-        })
-        .end();
-    }
+	new(req, res) {
+		if (!req.body.description || req.body.description === '')
+			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
 
-    await PaymentMethod.create({
-      description: req.body.description,
-    })
-      .then((paymentMethod) => {
-        res.json({ success: true, paymentMethod }).end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            errno: err.original.errno,
-            message: err.original.sqlMessage,
-          })
-          .end();
-      });
-  },
+		PaymentMethod.create({ description: req.body.description })
+			.then(paymentMethod =>
+				res.status(201).send({ paymentMethod }))
+			.catch(error =>
+				res.status(500).send({ message: error.original.sqlMessage }))
+	},
 
-  async update(req, res) {
-    if (!req.body.description || req.body.description === "") {
-      return res
-        .json({
-          error: true,
-          message: "Necessário campo 'description' não vazio.",
-        })
-        .end();
-    }
+	update(req, res) {
+		if (!req.body.description || req.body.description === '')
+			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
 
-    await PaymentMethod.findByPk(req.params.id)
-      .then((paymentMethod) => {
-        paymentMethod.description = req.body.description;
-        return paymentMethod.save();
-      })
-      .then((paymentMethod) => {
-        res
-          .json({
-            success: true,
-            paymentMethod,
-          })
-          .end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            message: "ID inválido.",
-          })
-          .end();
-      });
-  },
+		PaymentMethod.findByPk(req.params.id)
+			.then(paymentMethod => {
+				paymentMethod.description = req.body.description
 
-  async delete(req, res) {
-    await PaymentMethod.findByPk(req.params.id)
-      .then((paymentMethod) => paymentMethod.destroy())
-      .then((paymentMethod) => {
-        res
-          .json({
-            success: true,
-            paymentMethod,
-          })
-          .end();
-      })
-      .catch((err) => {
-        res
-          .json({
-            error: true,
-            message: "ID inválido.",
-          })
-          .end();
-      });
-  },
+				return paymentMethod.save()
+			})
+			.then(paymentMethod =>
+				res.status(200).send({ paymentMethod }))
+			.catch(_error =>
+				res.status(400).json({ message: 'Invalid ID' }))
+	},
+
+	delete(req, res) {
+		PaymentMethod.findByPk(req.params.id)
+			.then(paymentMethod =>
+				paymentMethod.destroy())
+			.then(_paymentMethod =>
+				res.status(204).send())
+			.catch(_error =>
+				res.status(400).send({ message: 'Invalid ID' }))
+	},
 };
