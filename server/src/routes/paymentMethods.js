@@ -6,6 +6,7 @@ const router = Router()
 
 router
 	.get('/', PaymentMethods.getAll)
+	.get('/:id', PaymentMethods.getOne)
 	.post('/', PaymentMethods.new)
 	.put('/:id', PaymentMethods.update)
 	.delete('/:id', PaymentMethods.delete)

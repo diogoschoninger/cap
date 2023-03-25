@@ -9,6 +9,14 @@ export default {
 				res.status(500).send({ message: error.original.sqlMessage }))
 	},
 
+	getOne(req, res) {
+		Document.findByPk(req.params.id)
+			.then(document =>
+				res.status(200).send({ document }))
+			.catch(_error =>
+				res.status(400).send({ message: "Invalid ID" }))
+	},
+
 	new(req, res) {
 		let body = req.body
 

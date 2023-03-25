@@ -6,6 +6,7 @@ const router = Router()
 
 router
 	.get('/', Documents.getAll)
+	.get('/:id', Documents.getOne)
 	.post('/', Documents.new)
 	.put('/:id', Documents.update)
 	.delete('/:id', Documents.delete)
