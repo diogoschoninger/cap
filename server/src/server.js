@@ -1,9 +1,6 @@
 import express from 'express'
 
-import sequelize from './database.js'
-import Document from './models/Document.js'
-import PaymentMethod from './models/PaymentMethod.js'
-import Situation from './models/Situation.js'
+import syncDatabase from './utils/syncDatabase.js'
 import documents from './routes/documents.js'
 import paymentMethods from './routes/paymentMethods.js'
 import situations from './routes/situations.js'
@@ -29,30 +26,6 @@ app.use('*', (req, res) => {
 
 app.listen(process.env.PORT, () => {
 	console.log('Server started. Port: ' + process.env.PORT)
-});
+})
 
-(async () => {
-	try {
-		Document.belongsTo(PaymentMethod, {
-			constraint: true,
-			foreignKey: {
-				name: 'payment_method',
-				allowNull: false,
-			},
-		})
-
-		Document.belongsTo(Situation, {
-			constraint: true,
-			foreignKey: {
-				name: 'situation',
-				allowNull: false,
-			},
-		})
-
-		await sequelize.sync()
-		
-		console.log('Database sync.')
-	} catch (error) {
-		console.error(error)
-	}
-})()
+syncDatabase()
