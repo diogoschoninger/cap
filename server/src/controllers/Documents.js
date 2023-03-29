@@ -1,22 +1,6 @@
 import Document from '../models/Document.js'
 
 export default {
-	getAll(req, res) {
-		Document.findAll()
-			.then(documents =>
-				res.status(200).send({ documents }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
-
-	getOne(req, res) {
-		Document.findByPk(req.params.id)
-			.then(document =>
-				res.status(200).send({ document }))
-			.catch(_error =>
-				res.status(400).send({ message: "Invalid ID" }))
-	},
-
 	new(req, res) {
 		let body = req.body
 
@@ -45,6 +29,22 @@ export default {
 				res.status(201).send({ document }))
 			.catch(error =>
 				res.status(500).send({ error }))
+	},
+	
+	list(req, res) {
+		Document.findAll()
+			.then(documents =>
+				res.status(200).send({ documents }))
+			.catch(error =>
+				res.status(500).send({ message: error.original.sqlMessage }))
+	},
+
+	get(req, res) {
+		Document.findByPk(req.params.id)
+			.then(document =>
+				res.status(200).send({ document }))
+			.catch(_error =>
+				res.status(400).send({ message: "Invalid ID" }))
 	},
 
 	update(req, res) {

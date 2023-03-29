@@ -1,22 +1,6 @@
 import PaymentMethod from '../models/PaymentMethod.js'
 
 export default {
-	getAll(req, res) {
-		PaymentMethod.findAll()
-			.then(paymentMethods => 
-				res.status(200).send({ paymentMethods }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
-
-	getOne(req, res) {
-		PaymentMethod.findByPk(req.params.id)
-			.then(paymentMethod =>
-				res.status(200).send({ paymentMethod }))
-			.catch(_error =>
-				res.status(400).send({ message: "Invalid ID" }))
-	},
-
 	new(req, res) {
 		if (!req.body.description || req.body.description === '')
 			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
@@ -26,6 +10,22 @@ export default {
 				res.status(201).send({ paymentMethod }))
 			.catch(error =>
 				res.status(500).send({ message: error.original.sqlMessage }))
+	},
+
+	list(req, res) {
+		PaymentMethod.findAll()
+			.then(paymentMethods => 
+				res.status(200).send({ paymentMethods }))
+			.catch(error =>
+				res.status(500).send({ message: error.original.sqlMessage }))
+	},
+
+	get(req, res) {
+		PaymentMethod.findByPk(req.params.id)
+			.then(paymentMethod =>
+				res.status(200).send({ paymentMethod }))
+			.catch(_error =>
+				res.status(400).send({ message: "Invalid ID" }))
 	},
 
 	update(req, res) {

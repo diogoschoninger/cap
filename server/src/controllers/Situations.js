@@ -1,22 +1,6 @@
 import Situation from '../models/Situation.js'
 
 export default {
-	getAll(req, res) {
-		Situation.findAll()
-			.then(situations => 
-				res.status(200).send({ situations }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
-
-	getOne(req, res) {
-		Situation.findByPk(req.params.id)
-			.then(situation =>
-				res.status(200).send({ situation }))
-			.catch(_error =>
-				res.status(400).send({ message: "Invalid ID" }))
-	},
-
 	new(req, res) {
 		if (!req.body.description || req.body.description === '')
 			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
@@ -26,6 +10,22 @@ export default {
 				res.status(201).send({ situation }))
 			.catch(error =>
 				res.status(500).send({ message: error.original.sqlMessage }))
+	},
+
+	list(req, res) {
+		Situation.findAll()
+			.then(situations => 
+				res.status(200).send({ situations }))
+			.catch(error =>
+				res.status(500).send({ message: error.original.sqlMessage }))
+	},
+
+	get(req, res) {
+		Situation.findByPk(req.params.id)
+			.then(situation =>
+				res.status(200).send({ situation }))
+			.catch(_error =>
+				res.status(400).send({ message: "Invalid ID" }))
 	},
 
 	update(req, res) {

@@ -5,9 +5,9 @@ import Documents from '../controllers/Documents.js'
 const router = Router()
 
 router
-	.get('/', Documents.getAll)
-	.get('/:id', Documents.getOne)
 	.post('/', Documents.new)
+	.get('/', Documents.list)
+	.get('/:id', Documents.get)
 	.put('/:id', Documents.update)
 	.delete('/:id', Documents.delete)
 
