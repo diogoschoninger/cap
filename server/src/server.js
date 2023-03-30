@@ -1,9 +1,10 @@
 import express from 'express'
 
-import syncDatabase from './utils/syncDatabase.js'
+import errorHandler from './middlewares/error.js'
 import documents from './routes/documents.js'
 import paymentMethods from './routes/paymentMethods.js'
 import situations from './routes/situations.js'
+import syncDatabase from './utils/syncDatabase.js'
 
 const app = express()
 const router = express.Router()
@@ -18,6 +19,7 @@ router.use((_req, res, next) => {
 router.use('/documents', documents)
 router.use('/payment-methods', paymentMethods)
 router.use('/situations', situations)
+router.use(errorHandler())
 
 app.use('/api', router)
 

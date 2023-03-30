@@ -1,56 +1,68 @@
+import asyncErrorHandler from '../middlewares/async-error.js'
 import PaymentMethod from '../models/PaymentMethod.js'
+import { NotFoundError, ClientDataError } from '../utils/errors.js'
 
 export default {
-	new(req, res) {
+	new: asyncErrorHandler(async (req, res) => {
 		if (!req.body.description || req.body.description === '')
-			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
+			return Promise.reject(new ClientDataError("'description'"))
 
-		PaymentMethod.create({ description: req.body.description })
-			.then(paymentMethod =>
-				res.status(201).send({ paymentMethod }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
+		const paymentMethod = await PaymentMethod.create({ description: req.body.description.toUpperCase() })
+		
+		if (!paymentMethod)
+			return Promise.reject(Error(paymentMethod))
+		
+		res.status(201).send({ paymentMethod })
+	}),
 
-	list(req, res) {
-		PaymentMethod.findAll()
-			.then(paymentMethods => 
-				res.status(200).send({ paymentMethods }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
+	list: asyncErrorHandler(async (req, res) => {
+		const paymentMethods = await PaymentMethod.findAll()
+		
+		res.status(200).send({ paymentMethods })
+	}),
 
-	get(req, res) {
-		PaymentMethod.findByPk(req.params.id)
-			.then(paymentMethod =>
-				res.status(200).send({ paymentMethod }))
-			.catch(_error =>
-				res.status(400).send({ message: "Invalid ID" }))
-	},
+	get: asyncErrorHandler(async (req, res) => {
+		const paymentMethod = await PaymentMethod.findByPk(req.params.id)
 
-	update(req, res) {
+		if (!paymentMethod)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'paymentMethod',
+				resourceIdentifier: req.params.id
+			}))
+
+		res.status(200).send({ paymentMethod })
+	}),
+
+	update: asyncErrorHandler(async (req, res) => {
+		const paymentMethod = await PaymentMethod.findByPk(req.params.id)
+
+		if (!paymentMethod)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'paymentMethod',
+				resourceIdentifier: req.params.id
+			}))
+
 		if (!req.body.description || req.body.description === '')
-			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
+			return Promise.reject(new ClientDataError("'description'"))
 
-		PaymentMethod.findByPk(req.params.id)
-			.then(paymentMethod => {
-				paymentMethod.description = req.body.description
+		paymentMethod.description = req.body.description.toUpperCase()
+		
+		paymentMethod.save()
+		
+		res.status(200).send({ paymentMethod })
+	}),
 
-				return paymentMethod.save()
-			})
-			.then(paymentMethod =>
-				res.status(200).send({ paymentMethod }))
-			.catch(_error =>
-				res.status(400).json({ message: 'Invalid ID' }))
-	},
+	delete: asyncErrorHandler(async (req, res) => {
+		const paymentMethod = await PaymentMethod.findByPk(req.params.id)
 
-	delete(req, res) {
-		PaymentMethod.findByPk(req.params.id)
-			.then(paymentMethod =>
-				paymentMethod.destroy())
-			.then(_paymentMethod =>
-				res.status(204).send())
-			.catch(_error =>
-				res.status(400).send({ message: 'Invalid ID' }))
-	},
+		if (!paymentMethod)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'paymentMethod',
+				resourceIdentifier: req.params.id
+			}))
+		
+		paymentMethod.destroy()
+
+		res.status(204).send({})
+	}),
 };

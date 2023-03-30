@@ -1,56 +1,68 @@
+import asyncErrorHandler from '../middlewares/async-error.js'
 import Situation from '../models/Situation.js'
+import { NotFoundError, ClientDataError } from '../utils/errors.js'
 
 export default {
-	new(req, res) {
+	new: asyncErrorHandler(async (req, res) => {
 		if (!req.body.description || req.body.description === '')
-			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
+			return Promise.reject(new ClientDataError("'description'"))
 
-		Situation.create({ description: req.body.description })
-			.then(situation =>
-				res.status(201).send({ situation }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
+		const situation = await Situation.create({ description: req.body.description.toUpperCase() })
+		
+		if (!situation)
+			return Promise.reject(Error(situation))
 
-	list(req, res) {
-		Situation.findAll()
-			.then(situations => 
-				res.status(200).send({ situations }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
+		res.status(201).send({ situation })
+	}),
 
-	get(req, res) {
-		Situation.findByPk(req.params.id)
-			.then(situation =>
-				res.status(200).send({ situation }))
-			.catch(_error =>
-				res.status(400).send({ message: "Invalid ID" }))
-	},
+	list: asyncErrorHandler(async (req, res) => {
+		const situations = await Situation.findAll()
+		
+		res.status(200).send({ situations })
+	}),
 
-	update(req, res) {
+	get: asyncErrorHandler(async (req, res) => {
+		const situation = await Situation.findByPk(req.params.id)
+
+		if (!situation)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'situation',
+				resourceIdentifier: req.params.id
+			}))
+
+		res.status(200).send({ situation })
+	}),
+
+	update: asyncErrorHandler(async (req, res) => {
+		const situation = await Situation.findByPk(req.params.id)
+
+		if (!situation)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'situation',
+				resourceIdentifier: req.params.id
+			}))
+
 		if (!req.body.description || req.body.description === '')
-			return res.status(400).send({ message: "Required non-empty field: {'description'}" })
+			return Promise.reject(new ClientDataError("'description'"))
 
-		Situation.findByPk(req.params.id)
-			.then(situation => {
-				situation.description = req.body.description
+		situation.description = req.body.description.toUpperCase()
+		
+		situation.save()
+		
+		res.status(200).send({ situation })
+	}),
 
-				return situation.save()
-			})
-			.then(situation =>
-				res.status(200).send({ situation }))
-			.catch(_error =>
-				res.status(400).json({ message: 'Invalid ID' }))
-	},
+	delete: asyncErrorHandler(async (req, res) => {
+		const situation = await Situation.findByPk(req.params.id)
 
-	delete(req, res) {
-		Situation.findByPk(req.params.id)
-			.then(situation =>
-				situation.destroy())
-			.then(_situation =>
-				res.status(204).send())
-			.catch(_error =>
-				res.status(400).send({ message: 'Invalid ID' }))
-	},
+		if (!situation)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'situation',
+				resourceIdentifier: req.params.id
+			}))
+		
+		situation.destroy()
+
+		res.status(204).send({})
+	}),
 };

@@ -1,94 +1,96 @@
+import asyncErrorHandler from '../middlewares/async-error.js'
 import Document from '../models/Document.js'
+import { NotFoundError, ClientDataError } from '../utils/errors.js'
 
 export default {
-	new(req, res) {
-		let body = req.body
-
+	new: asyncErrorHandler(async (req, res) => {
 		if (
-			!body.description ||
-			!body.expiration ||
-			!body.payment_method ||
-			!body.situation ||
-			body.description === '' ||
-			body.expiration === '' ||
-			body.payment_method === '' ||
-			body.situation === ''
+			!req.body.description ||
+			!req.body.expiration ||
+			!req.body.payment_method ||
+			!req.body.situation ||
+			req.body.description === '' ||
+			req.body.expiration === '' ||
+			req.body.payment_method === '' ||
+			req.body.situation === ''
 		)
-			return res.status(400).send({
-				message: "Required non-empty fields: {'description', 'expiration', 'payment_method', 'situation'}"
-			})
+			return Promise.reject(new ClientDataError("'description', 'expiration', 'payment_method', 'situation'"))
 
-		Document.create({
-			description: body.description.toUpperCase(),
-			expiration: body.expiration,
-			value: body.value,
-			payment_method: body.payment_method,
-			situation: body.situation,
+		const document = await Document.create({
+			description: req.body.description.toUpperCase(),
+			expiration: req.body.expiration,
+			value: req.body.value,
+			payment_method: req.body.payment_method,
+			situation: req.body.situation,
 		})
-			.then(document =>
-				res.status(201).send({ document }))
-			.catch(error =>
-				res.status(500).send({ error }))
-	},
+		
+		if (!document)
+			return Promise.reject(Error(document))
+		
+		res.status(201).send({ document })
+	}),
 	
-	list(req, res) {
-		Document.findAll()
-			.then(documents =>
-				res.status(200).send({ documents }))
-			.catch(error =>
-				res.status(500).send({ message: error.original.sqlMessage }))
-	},
+	list: asyncErrorHandler(async (req, res) => {
+		const documents = await Document.findAll()
+		
+		res.status(200).send({ documents })
+	}),
 
-	get(req, res) {
-		Document.findByPk(req.params.id)
-			.then(document =>
-				res.status(200).send({ document }))
-			.catch(_error =>
-				res.status(400).send({ message: "Invalid ID" }))
-	},
+	get: asyncErrorHandler(async (req, res) => {
+		const document = await Document.findByPk(req.params.id)
 
-	update(req, res) {
-		let body = req.body
+		if (!document)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'user',
+				resourceIdentifier: req.params.id
+			}))
 
+		res.status(200).send({ document })
+	}),
+
+	update: asyncErrorHandler(async (req, res) => {
+		const document = await Document.findByPk(req.params.id)
+
+		if (!document)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'user',
+				resourceIdentifier: req.params.id
+			}))
+		
 		if (
-			!body.description ||
-			!body.expiration ||
-			!body.payment_method ||
-			!body.situation ||
-			body.description === '' ||
-			body.expiration === '' ||
-			body.payment_method === '' ||
-			body.situation === ''
+			!req.body.description ||
+			!req.body.expiration ||
+			!req.body.payment_method ||
+			!req.body.situation ||
+			req.body.description === '' ||
+			req.body.expiration === '' ||
+			req.body.payment_method === '' ||
+			req.body.situation === ''
 		)
-			return res.status(400).send({
-				message: "Required non-empty fields: {'description', 'expiration', 'payment_method', 'situation'}"
-			})
+			return Promise.reject(new ClientDataError("'description', 'expiration', 'payment_method', 'situation'"))
+		
+		document.description = req.body.description.toUpperCase()
+		document.expiration = req.body.expiration
+		document.value = req.body.value
+		document.payment_method = req.body.payment_method
+		document.situation = req.body.situation
 
-		Document.findByPk(req.params.id)
-			.then(document => {
-				if (!document)
-					return Promise.reject('Invalid ID')
+		document.save()
 
-				document.description = body.description.toUpperCase()
-				document.expiration = body.expiration
-				document.value = body.value
-				document.payment_method = body.payment_method
-				document.situation = body.situation
+		res.status(200).send({ document })
+	}),
 
-				return document.save()
-			})
-			.then(document =>
-				res.status(200).send({ document }))
-			.catch(error =>
-				res.status(400).json({ error }))
-	},
+	delete: asyncErrorHandler(async (req, res) => {
+		const document = await Document.findByPk(req.params.id)
 
-	delete(req, res) {
-		Document.findByPk(req.params.id)
-			.then(document => document.destroy())
-			.then(_document =>
-				res.status(204).send())
-			.catch(error =>
-				res.status(400).send({ message: 'Invalid ID' }))
-	},
+		if (!document)
+			return Promise.reject(new NotFoundError({
+				resourceName: 'user',
+				resourceIdentifier: req.params.id
+			}))
+
+		document.destroy()
+		
+		res.status(204).send({})
+	}),
 }
