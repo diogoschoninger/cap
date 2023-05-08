@@ -1,26 +1,30 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
 
-import asyncError from './middlewares/asyncError';
-import validateSchema from './middlewares/validateSchema';
+import controller from './controllers';
+import jwtAuth from './middlewares/jwtAuth';
+import validate from './middlewares/validateSchema';
 import schemas from './utils/schemas';
-import { db } from './db/config';
 
 const router = Router();
 
-router.get('/', (req, res) => res.status(200).send('Hello world'));
+// SESSÃO
+router.post('/register', validate(schemas.register), controller.register);
+router.post('/login', validate(schemas.login), controller.login);
+router.get('/session/verify', jwtAuth, controller.verifySession);
 
+// FORMAS DE PAGAMENTO
+router.get('/payments', jwtAuth, controller.listPayments);
+
+// SITUAÇÕES
+router.get('/situations', jwtAuth, controller.listSituations);
+
+// DOCUMENTOS
 router.post(
-  '/login',
-  validateSchema(schemas.login),
-  asyncError(async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-
-    const user = await db.query(
-      `SELECT * FROM users WHERE email LIKE "${email}"`
-    );
-
-    res.send(user);
-  })
+  '/documents',
+  validate(schemas.createDocument),
+  jwtAuth,
+  controller.createDocument
 );
+router.get('/documents', jwtAuth, controller.listDocuments);
 
 export default router;

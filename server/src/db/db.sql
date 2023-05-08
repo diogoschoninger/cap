@@ -1,33 +1,42 @@
--- EXECUTED
-create database cap;
+CREATE DATABASE IF NOT EXISTS `cap`;
 
-create table user (
-  id int not null auto_increment primary key,
-  name varchar(100) not null,
-  email varchar(200) not null unique,
-  password varchar(256) not null
-);
+USE `cap`;
 
--- NOT EXECUTED
-create table documents (
-  id int not null auto_increment primary key,
-  description varchar(100) not null,
-  expiration date not null,
-  value decimal(12, 2) not null
-);
+CREATE TABLE IF NOT EXISTS `payments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_GENERAL_CI;
 
-create table payment_methods (
-  id int not null auto_increment primary key,
-  description varchar(100) not null
-);
+CREATE TABLE IF NOT EXISTS `situations` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_GENERAL_CI;
 
-create table situations (
-  id int not null auto_increment primary key,
-  description varchar(100) not null
-);
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
+  `email` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
+  `password` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_GENERAL_CI;
 
-alter table documents
-  add foreign key payment_method references payment_methods (id);
-
-alter table documents
-  add foreign key situation references situations (id);
+CREATE TABLE IF NOT EXISTS `documents` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
+  `value` DECIMAL(12,2) NOT NULL,
+  `date` DATE NOT NULL,
+  `user_owner` INT NOT NULL,
+  `payment` INT NOT NULL,
+  `situation` INT NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_owner` (`user_owner`),
+  KEY `payment` (`payment`),
+  KEY `situation` (`situation`),
+  CONSTRAINT `fk_user_owner` FOREIGN KEY (`user_owner`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_payment` FOREIGN KEY (`payment`) REFERENCES `payments` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_situation` FOREIGN KEY (`situation`) REFERENCES `situations` (`id`) ON UPDATE CASCADE
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_GENERAL_CI;
