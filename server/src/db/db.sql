@@ -8,11 +8,24 @@ CREATE TABLE IF NOT EXISTS `payments` (
   PRIMARY KEY (`id`)
 ) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_GENERAL_CI;
 
+INSERT INTO `payments` (`id`, `description`) VALUES
+	(1, 'Boleto'),
+	(2, 'Cheque'),
+	(3, 'Débito'),
+	(4, 'Pix'),
+	(5, 'Transferência'),
+	(6, 'Dinheiro');
+
 CREATE TABLE IF NOT EXISTS `situations` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `description` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_GENERAL_CI;
+
+INSERT INTO `situations` (`id`, `description`) VALUES
+	(1, 'Aberto'),
+	(2, 'Baixado'),
+	(3, 'Excluído');
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -27,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `documents` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `description` VARCHAR(255) COLLATE UTF8MB4_GENERAL_CI NOT NULL,
   `value` DECIMAL(12,2) NOT NULL,
-  `date` DATE NOT NULL,
+  `expiration` DATE NOT NULL,
   `user_owner` INT NOT NULL,
   `payment` INT NOT NULL,
   `situation` INT NOT NULL,

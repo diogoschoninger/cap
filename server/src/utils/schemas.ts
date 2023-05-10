@@ -22,10 +22,16 @@ export default {
     body: Joi.object({
       description: Joi.string().required(),
       value: Joi.string().required(),
-      date: Joi.date().required(),
+      expiration: Joi.date().required(),
       user_owner: Joi.number().required(),
       payment: Joi.number().required(),
       situation: Joi.number().required(),
+    }),
+  },
+
+  closeDocument: {
+    params: Joi.object({
+      id: Joi.number().required(),
     }),
   },
 };

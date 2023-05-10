@@ -34,12 +34,11 @@ export default () => {
       ) : null}
 
       <header style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Contas a pagar</h1>
+        <h1 style={{ margin: 0 }}>Contas a pagar</h1>
 
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', gap: '1rem', listStyle: 'none' }}>
           <div>
-            <li>Nome: {user?.name}</li>
-            <li>Email: {user?.email}</li>
+            <li>Usuário logado: {user?.name}</li>
           </div>
 
           <button

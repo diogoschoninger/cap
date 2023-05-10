@@ -26,5 +26,11 @@ router.post(
   controller.createDocument
 );
 router.get('/documents', jwtAuth, controller.listDocuments);
+router.put(
+  '/documents/close/:id',
+  validate(schemas.closeDocument),
+  jwtAuth,
+  controller.closeDocument
+);
 
 export default router;

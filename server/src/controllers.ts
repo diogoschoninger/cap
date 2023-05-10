@@ -80,12 +80,12 @@ export default {
     body.value = stringToNumber(body.value);
 
     await db.query(
-      `INSERT INTO documents (description, value, date, user_owner, payment, situation, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+      `INSERT INTO documents (description, value, expiration, user_owner, payment, situation, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())`,
       {
         replacements: [
           body.description,
           body.value,
-          body.date,
+          body.expiration,
           body.user_owner,
           body.payment,
           body.situation,
@@ -106,10 +106,27 @@ export default {
     const user_id = decoded.id;
 
     const data = await db.query(
-      'SELECT * FROM documents WHERE user_owner = ? ORDER BY date, created_at',
+      'SELECT * FROM documents WHERE user_owner = ? AND situation = 1 ORDER BY expiration, description, created_at',
       { replacements: [user_id], type: QueryTypes.SELECT }
     );
 
     res.status(200).send(data);
+  }),
+
+  closeDocument: asyncErrorHandler(async (req: Request, res: Response) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    const decoded: any = jwt.verify(
+      token as string,
+      jwtConfig.secret as Secret
+    );
+    const user_id = decoded.id;
+    const document_id = Number(req.params.id);
+
+    await db.query(
+      'UPDATE documents SET situation = 2 WHERE user_owner = ? AND id = ?',
+      { replacements: [user_id, document_id], type: QueryTypes.UPDATE }
+    );
+
+    res.status(200).send({});
   }),
 };

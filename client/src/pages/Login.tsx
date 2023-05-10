@@ -1,10 +1,13 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 
+import Error from '../components/Error';
 import { getLoggedUser, setLoggedUser } from '../services/auth';
 
 export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
+
+  const [error, setError] = useState<any>(null);
 
   const [email, setEmail] = useState<String>('');
   const [password, setPassword] = useState<String>('');
@@ -21,7 +24,10 @@ export default () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if (res.error) return alert(JSON.stringify(res));
+        if (res.error) {
+          setError(res);
+          return;
+        }
 
         setLoggedUser({ token: res.token, ...res.user });
         setUser(res.user);
@@ -56,6 +62,9 @@ export default () => {
             required
           />
         </div>
+
+        {error ? <Error error={error} /> : null}
+
         <div>
           <input type="submit" value="Acessar" />
         </div>

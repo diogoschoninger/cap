@@ -1,7 +1,11 @@
 import { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import Error from '../components/Error';
+
 export default () => {
+  const [error, setError] = useState<any>(null);
+
   const [name, setName] = useState<String>('');
   const [email, setEmail] = useState<String>('');
   const [password, setPassword] = useState<String>('');
@@ -21,7 +25,11 @@ export default () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if (res.error) return alert(JSON.stringify(res));
+        if (res.error) {
+          setError(res);
+          return;
+        }
+
         return alert('Usuário criado com sucesso!');
       })
       .catch((err) => {
@@ -40,6 +48,7 @@ export default () => {
             type="text"
             id="name"
             onChange={(e) => setName(e.target.value)}
+            required
           />
         </div>
         <div>
@@ -48,6 +57,7 @@ export default () => {
             type="email"
             id="email"
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
         <div>
@@ -56,6 +66,7 @@ export default () => {
             type="password"
             id="password"
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
         <div>
@@ -64,8 +75,12 @@ export default () => {
             type="password"
             id="confirmPassword"
             onChange={(e) => setConfirmPassword(e.target.value)}
+            required
           />
         </div>
+
+        {error ? <Error error={error} /> : null}
+
         <div>
           <button type="submit">Cadastrar</button>
         </div>
