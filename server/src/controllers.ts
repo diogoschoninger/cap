@@ -106,7 +106,7 @@ export default {
     const user_id = decoded.id;
 
     const data = await db.query(
-      'SELECT * FROM documents WHERE user_owner = ? AND situation = 1 ORDER BY expiration, description, created_at',
+      'SELECT * FROM documents WHERE user_owner = ? AND situation = 1 ORDER BY expiration, created_at, description',
       { replacements: [user_id], type: QueryTypes.SELECT }
     );
 
