@@ -4,14 +4,19 @@ import { Link, Navigate } from 'react-router-dom';
 import Error from '../../components/Error';
 import Header from '../../components/Header';
 import { getLoggedUser, setLogout } from '../../services/auth';
+import Success from '../../components/Success';
 
 export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
 
   const [error, setError] = useState<any>(null);
+  const [success, setSuccess] = useState<any>(null);
+  const [loadingPayments, setLoadingPayments] = useState<boolean>(true);
+  const [loadingSituations, setLoadingSituations] = useState<boolean>(true);
+  const [loadingRegister, setLoadingRegister] = useState<boolean>(false);
 
   const [formDescription, setFormDescription] = useState<any>();
-  const [formDate, setFormDate] = useState<any>();
+  const [formExpiration, setFormExpiration] = useState<any>();
   const [formValue, setFormValue] = useState<any>();
   const [formPayment, setFormPayment] = useState<any>(null);
   const [formSituation, setFormSituation] = useState<any>(null);
@@ -21,6 +26,8 @@ export default () => {
 
   function listPayments() {
     if (!user) return;
+
+    setLoadingPayments(true);
 
     fetch(`${process.env.REACT_APP_SERVER_URL}/payments`, {
       headers: {
@@ -32,12 +39,21 @@ export default () => {
         if (res.error) return setUser(null);
 
         setPayments(res);
+        setLoadingPayments(false);
       })
-      .catch((err) => console.error(err));
+      .catch((_err) => {
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setLoadingPayments(false);
+      });
   }
 
   function listSituations() {
     if (!user) return;
+
+    setLoadingSituations(true);
 
     fetch(`${process.env.REACT_APP_SERVER_URL}/situations`, {
       headers: {
@@ -49,12 +65,23 @@ export default () => {
         if (res.error) return setUser(null);
 
         setSituations(res);
+        setLoadingSituations(false);
       })
-      .catch((err) => console.error(err));
+      .catch((_err) => {
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setLoadingSituations(false);
+      });
   }
 
   function registerDocument(event: FormEvent) {
     event.preventDefault();
+
+    setError(false);
+    setSuccess(null);
+    setLoadingRegister(true);
 
     fetch(`${process.env.REACT_APP_SERVER_URL}/documents`, {
       method: 'POST',
@@ -65,7 +92,7 @@ export default () => {
       body: JSON.stringify({
         description: formDescription.toUpperCase(),
         value: formValue,
-        expiration: formDate,
+        expiration: formExpiration,
         user_owner: user.id,
         payment: !formPayment ? 1 : Number(formPayment),
         situation: !formSituation ? 1 : Number(formSituation),
@@ -75,15 +102,19 @@ export default () => {
       .then((res) => {
         if (res.error) {
           setError(res);
+          setLoadingRegister(false);
           return;
         }
 
-        alert('Documento cadastrado com sucesso!');
-        setError(null);
+        setSuccess('Documento criado com sucesso!');
+        setLoadingRegister(false);
       })
       .catch((err) => {
-        alert('Ocorreu um erro, tente novamente');
-        console.error(err);
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setLoadingRegister(false);
       });
   }
 
@@ -102,8 +133,6 @@ export default () => {
       ) : null}
 
       <Header />
-
-      <Link to="/">Página inicial</Link>
 
       <form onSubmit={(e) => registerDocument(e)}>
         <div>
@@ -128,12 +157,12 @@ export default () => {
         </div>
 
         <div>
-          <label htmlFor="date">Data</label>
+          <label htmlFor="expiration">Vencimento</label>
           <input
             type="date"
-            id="date"
+            id="expiration"
             required
-            onChange={(e) => setFormDate(e.target.value)}
+            onChange={(e) => setFormExpiration(e.target.value)}
           />
         </div>
 
@@ -144,13 +173,17 @@ export default () => {
             required
             onChange={(e) => setFormPayment(e.target.value)}
           >
-            {payments
-              ? payments.map((payment: any) => (
-                  <option key={payment.id} value={payment.id}>
-                    {payment.description}
-                  </option>
-                ))
-              : null}
+            {loadingPayments ? (
+              <option>Carregando...</option>
+            ) : !payments ? (
+              <option> - </option>
+            ) : (
+              payments.map((payment: any) => (
+                <option key={payment.id} value={payment.id}>
+                  {payment.description}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
@@ -161,19 +194,31 @@ export default () => {
             required
             onChange={(e) => setFormSituation(e.target.value)}
           >
-            {situations
-              ? situations.map((situation: any) => (
-                  <option key={situation.id} value={situation.id}>
-                    {situation.description}
-                  </option>
-                ))
-              : null}
+            {loadingSituations ? (
+              <option>Carregando...</option>
+            ) : !situations ? (
+              <option> - </option>
+            ) : (
+              situations.map((situation: any) => (
+                <option key={situation.id} value={situation.id}>
+                  {situation.description}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
         {error ? <Error error={error} /> : null}
 
-        <button type="submit">Cadastrar</button>
+        {success ? <Success message={success} /> : null}
+
+        {loadingPayments || loadingSituations || loadingRegister ? (
+          <input type="submit" value="Carregando..." disabled />
+        ) : error ? (
+          <input type="submit" value="Cadastrar" disabled />
+        ) : (
+          <input type="submit" value="Cadastrar" />
+        )}
       </form>
     </>
   );

@@ -4,14 +4,18 @@ import { Link, Navigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { getLoggedUser, setLogout } from '../services/auth';
 import numberToBRL from '../services/numberToBRL';
+import Error from '../components/Error';
 
 export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
+
+  const [error, setError] = useState<any>(null);
 
   const [documents, setDocuments] = useState<any>([]);
   const [documentsLoading, setDocumentsLoading] = useState<boolean>(true);
 
   async function listDocuments() {
+    setError(null);
     setDocumentsLoading(true);
 
     if (!user) return;
@@ -26,10 +30,15 @@ export default () => {
         if (res.error) return setUser(null);
 
         setDocuments(res);
+        setDocumentsLoading(false);
       })
-      .catch((err) => alert(err.message));
-
-    setDocumentsLoading(false);
+      .catch((err) => {
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setDocumentsLoading(false);
+      });
   }
 
   async function closeDocument(id: number) {
@@ -41,10 +50,14 @@ export default () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if (res.error) return setUser(null);
-        console.log(res);
+        if (res.error) {
+          alert(res.error);
+          return setUser(null);
+        }
       })
-      .catch((err) => alert(err.message));
+      .catch((err) => {
+        setUser(null);
+      });
 
     listDocuments();
   }
@@ -67,10 +80,6 @@ export default () => {
       <section>
         <h2>Documentos</h2>
 
-        <div>
-          <Link to="/documents/new">Novo documento</Link>
-        </div>
-
         <table>
           <thead>
             <tr>
@@ -83,11 +92,17 @@ export default () => {
           <tbody>
             {documentsLoading ? (
               <tr>
-                <td colSpan={3}>Carregando documentos...</td>
+                <td colSpan={4}>Carregando documentos...</td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={4}>
+                  <Error error={error} />
+                </td>
               </tr>
             ) : documents.length < 1 ? (
               <tr>
-                <td colSpan={3}>Nenhum documento cadastrado</td>
+                <td colSpan={4}>Nenhum documento cadastrado</td>
               </tr>
             ) : (
               documents.map((document: any) => (

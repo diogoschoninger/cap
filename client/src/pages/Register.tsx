@@ -2,9 +2,12 @@ import { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Error from '../components/Error';
+import Success from '../components/Success';
 
 export default () => {
   const [error, setError] = useState<any>(null);
+  const [success, setSuccess] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [name, setName] = useState<String>('');
   const [email, setEmail] = useState<String>('');
@@ -14,7 +17,29 @@ export default () => {
   function register(event: FormEvent) {
     event.preventDefault();
 
-    if (password !== confirmPassword) return alert('As senhas não coincidem');
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    if (password !== confirmPassword) {
+      setError({
+        error: 'Credenciais inválidas',
+        message: 'As senhas não coincidem',
+      });
+
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 5) {
+      setError({
+        error: 'Credenciais inválidas',
+        message: 'A senha deve conter, no mínimo, 5 caracteres',
+      });
+
+      setLoading(false);
+      return;
+    }
 
     fetch(`${process.env.REACT_APP_SERVER_URL}/register`, {
       method: 'POST',
@@ -26,15 +51,28 @@ export default () => {
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
-          setError(res);
+          if (res.error === 'SequelizeUniqueConstraintError') {
+            setError({
+              error: 'Credenciais inválidas',
+              message: 'Este email já está sendo utilizado',
+            });
+          } else {
+            setError(res);
+          }
+
+          setLoading(false);
           return;
         }
 
-        return alert('Usuário criado com sucesso!');
+        setSuccess('Usuário criado com sucesso!');
+        setLoading(false);
       })
       .catch((err) => {
-        alert('Ocorreu um erro, tente novamente');
-        console.error(err);
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setLoading(false);
       });
   }
   return (
@@ -81,8 +119,14 @@ export default () => {
 
         {error ? <Error error={error} /> : null}
 
+        {success ? <Success message={success} /> : null}
+
         <div>
-          <button type="submit">Cadastrar</button>
+          {loading ? (
+            <input type="submit" value="Carregando..." disabled />
+          ) : (
+            <input type="submit" value="Cadastrar" />
+          )}
         </div>
       </form>
 

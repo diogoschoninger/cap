@@ -8,12 +8,16 @@ export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
 
   const [error, setError] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [email, setEmail] = useState<String>('');
   const [password, setPassword] = useState<String>('');
 
   function login(event: FormEvent) {
     event.preventDefault();
+
+    setError(false);
+    setLoading(true);
 
     fetch(`${process.env.REACT_APP_SERVER_URL}/login`, {
       method: 'POST',
@@ -26,11 +30,19 @@ export default () => {
       .then((res) => {
         if (res.error) {
           setError(res);
+          setLoading(false);
           return;
         }
 
         setLoggedUser({ token: res.token, ...res.user });
         setUser(res.user);
+      })
+      .catch((err) => {
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setLoading(false);
       });
   }
 
@@ -66,7 +78,11 @@ export default () => {
         {error ? <Error error={error} /> : null}
 
         <div>
-          <input type="submit" value="Acessar" />
+          {loading ? (
+            <input type="submit" value="Carregando..." disabled />
+          ) : (
+            <input type="submit" value="Acessar" />
+          )}
         </div>
       </form>
 
