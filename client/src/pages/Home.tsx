@@ -50,13 +50,14 @@ export default () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if (res.error) {
-          alert(res.error);
-          return setUser(null);
-        }
+        if (res.error) return setUser(null);
       })
       .catch((err) => {
-        setUser(null);
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setDocumentsLoading(false);
       });
 
     listDocuments();

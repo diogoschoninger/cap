@@ -108,6 +108,10 @@ export default () => {
 
         setSuccess('Documento criado com sucesso!');
         setLoadingRegister(false);
+        setFormDescription('');
+        setFormValue('');
+        setFormExpiration('');
+        document.getElementById('description')?.focus();
       })
       .catch((err) => {
         setError({
@@ -142,6 +146,7 @@ export default () => {
             id="description"
             required
             onChange={(e) => setFormDescription(e.target.value)}
+            value={formDescription}
             autoFocus
           />
         </div>
@@ -153,6 +158,7 @@ export default () => {
             id="value"
             required
             onChange={(e) => setFormValue(e.target.value)}
+            value={formValue}
           />
         </div>
 
@@ -163,6 +169,7 @@ export default () => {
             id="expiration"
             required
             onChange={(e) => setFormExpiration(e.target.value)}
+            value={formExpiration}
           />
         </div>
 
@@ -172,6 +179,7 @@ export default () => {
             id="payment"
             required
             onChange={(e) => setFormPayment(e.target.value)}
+            defaultValue={formPayment}
           >
             {loadingPayments ? (
               <option>Carregando...</option>
