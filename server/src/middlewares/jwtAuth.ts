@@ -1,9 +1,10 @@
+import dotenv from 'dotenv';
 import { expressjwt } from 'express-jwt';
 import { Algorithm, Secret } from 'jsonwebtoken';
 
-import { jwtConfig } from '../utils/auth';
+dotenv.config();
 
 export default expressjwt({
-  secret: jwtConfig.secret as Secret,
+  secret: process.env.SECRET as Secret,
   algorithms: [process.env.ALGORITHM as Algorithm],
 });
