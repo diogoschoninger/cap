@@ -77,60 +77,84 @@ export default () => {
   }
   return (
     <>
-      <h1>Cadastro</h1>
+      <main
+        style={{ width: '100vw', height: '100vh' }}
+        className="d-flex justify-content-center align-items-center container"
+      >
+        <section className="d-flex flex-column gap-3 col-3">
+          <h1 className="text-center m-0">Cadastro</h1>
 
-      <form onSubmit={(e) => register(e)}>
-        <div>
-          <label htmlFor="name">Nome completo</label>
-          <input
-            type="text"
-            id="name"
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Senha</label>
-          <input
-            type="password"
-            id="password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirme a senha</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
+          <form
+            onSubmit={(e) => register(e)}
+            className="d-flex flex-column gap-3"
+          >
+            <div className="d-flex flex-column">
+              <label htmlFor="name">Nome completo</label>
+              <input
+                className="p-2 border border-secondary rounded"
+                type="text"
+                id="name"
+                onChange={(e) => setName(e.target.value)}
+                autoFocus
+                required
+              />
+            </div>
+            <div className="d-flex flex-column">
+              <label htmlFor="email">Email</label>
+              <input
+                className="p-2 border border-secondary rounded"
+                type="email"
+                id="email"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="d-flex flex-column">
+              <label htmlFor="password">Senha</label>
+              <input
+                className="p-2 border border-secondary rounded"
+                type="password"
+                id="password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="d-flex flex-column">
+              <label htmlFor="confirmPassword">Confirme a senha</label>
+              <input
+                className="p-2 border border-secondary rounded"
+                type="password"
+                id="confirmPassword"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
 
-        {error ? <Error error={error} /> : null}
+            {error ? <Error error={error} /> : null}
 
-        {success ? <Success message={success} /> : null}
+            {success ? <Success message={success} /> : null}
 
-        <div>
-          {loading ? (
-            <input type="submit" value="Carregando..." disabled />
-          ) : (
-            <input type="submit" value="Cadastrar" />
-          )}
-        </div>
-      </form>
+            <div>
+              {loading ? (
+                <input
+                  type="submit"
+                  className="btn w-100 btn-primary"
+                  value="Carregando..."
+                  disabled
+                />
+              ) : (
+                <input
+                  type="submit"
+                  className="btn w-100 btn-primary"
+                  value="Cadastrar"
+                />
+              )}
+            </div>
+          </form>
 
-      <Link to="/login">Fazer login</Link>
+          <Link to="/login">Fazer login</Link>
+        </section>
+      </main>
     </>
   );
 };

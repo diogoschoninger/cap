@@ -32,5 +32,8 @@ router.put(
   jwtAuth,
   controller.closeDocument
 );
+router.get('/documents/total-registered', jwtAuth, controller.totalRegistered);
+router.get('/documents/total-closed', jwtAuth, controller.totalClosed);
+router.get('/documents/total-open', jwtAuth, controller.totalOpen);
 
 export default router;

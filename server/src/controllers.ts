@@ -106,7 +106,19 @@ export default {
     const user_id = decoded.id;
 
     const data = await db.query(
-      'SELECT * FROM documents WHERE user_owner = ? AND situation = 1 ORDER BY expiration, created_at, description',
+      `SELECT
+        documents.id,
+        documents.description,
+        documents.value,
+        documents.expiration,
+        documents.created_at,
+        payments.description AS payment
+      FROM documents
+      INNER JOIN payments
+        ON documents.payment = payments.id
+      WHERE user_owner = ?
+      AND situation = 1
+      ORDER BY expiration, created_at`,
       { replacements: [user_id], type: QueryTypes.SELECT }
     );
 
@@ -128,5 +140,53 @@ export default {
     );
 
     res.status(200).send({});
+  }),
+
+  totalRegistered: asyncErrorHandler(async (req: Request, res: Response) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    const decoded: any = jwt.verify(
+      token as string,
+      jwtConfig.secret as Secret
+    );
+    const user_id = decoded.id;
+
+    const [data, _meta] = await db.query(
+      'SELECT SUM(value) AS total FROM documents WHERE user_owner = ?',
+      { replacements: [user_id], type: QueryTypes.SELECT }
+    );
+
+    res.status(200).send(data);
+  }),
+
+  totalClosed: asyncErrorHandler(async (req: Request, res: Response) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    const decoded: any = jwt.verify(
+      token as string,
+      jwtConfig.secret as Secret
+    );
+    const user_id = decoded.id;
+
+    const [data, _meta] = await db.query(
+      'SELECT SUM(value) AS total FROM documents WHERE user_owner = ? AND situation = 2',
+      { replacements: [user_id], type: QueryTypes.SELECT }
+    );
+
+    res.status(200).send(data);
+  }),
+
+  totalOpen: asyncErrorHandler(async (req: Request, res: Response) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    const decoded: any = jwt.verify(
+      token as string,
+      jwtConfig.secret as Secret
+    );
+    const user_id = decoded.id;
+
+    const [data, _meta] = await db.query(
+      'SELECT SUM(value) AS total FROM documents WHERE user_owner = ? AND situation = 1',
+      { replacements: [user_id], type: QueryTypes.SELECT }
+    );
+
+    res.status(200).send(data);
   }),
 };

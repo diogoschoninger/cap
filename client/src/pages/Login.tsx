@@ -50,43 +50,60 @@ export default () => {
     <>
       {user ? <Navigate to="/" /> : null}
 
-      <h1>Login</h1>
+      <main
+        style={{ width: '100vw', height: '100vh' }}
+        className="d-flex justify-content-center align-items-center container"
+      >
+        <section className="d-flex flex-column gap-3 col-3">
+          <h1 className="text-center m-0">Login</h1>
 
-      <form onSubmit={(e) => login(e)}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            onChange={(e) => setEmail(e.target.value)}
-            autoFocus
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Senha</label>
-          <input
-            id="password"
-            type="password"
-            minLength={5}
-            maxLength={255}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <form onSubmit={(e) => login(e)} className="d-flex flex-column gap-3">
+            <div className="d-flex flex-column">
+              <label htmlFor="email">Email</label>
+              <input
+                className="p-2 border border-secondary rounded"
+                id="email"
+                type="email"
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+                required
+              />
+            </div>
+            <div className="d-flex flex-column">
+              <label htmlFor="password">Senha</label>
+              <input
+                className="p-2 border border-secondary rounded"
+                id="password"
+                type="password"
+                minLength={5}
+                maxLength={255}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-        {error ? <Error error={error} /> : null}
+            {error ? <Error error={error} /> : null}
 
-        <div>
-          {loading ? (
-            <input type="submit" value="Carregando..." disabled />
-          ) : (
-            <input type="submit" value="Acessar" />
-          )}
-        </div>
-      </form>
-
-      <Link to="/register">Cadastre-se</Link>
+            <div>
+              {loading ? (
+                <input
+                  type="submit"
+                  className="btn w-100 btn-primary"
+                  value="Carregando..."
+                  disabled
+                />
+              ) : (
+                <input
+                  type="submit"
+                  className="btn w-100 btn-primary"
+                  value="Acessar"
+                />
+              )}
+            </div>
+          </form>
+          <Link to="/register">Cadastre-se</Link>
+        </section>
+      </main>
     </>
   );
 };

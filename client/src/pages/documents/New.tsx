@@ -111,6 +111,8 @@ export default () => {
         setFormDescription('');
         setFormValue('');
         setFormExpiration('');
+        setFormPayment('');
+        setFormSituation('');
         document.getElementById('description')?.focus();
       })
       .catch((err) => {
@@ -137,97 +139,130 @@ export default () => {
       ) : null}
 
       <Header />
+      <main
+        style={{ width: '100vw', height: '100vh' }}
+        className="container mt-3"
+      >
+        <section className="d-flex flex-column gap-3">
+          <h2 className="m-0 text-center">Cadastrar novo documento</h2>
 
-      <form onSubmit={(e) => registerDocument(e)}>
-        <div>
-          <label htmlFor="description">Descrição</label>
-          <input
-            type="text"
-            id="description"
-            required
-            onChange={(e) => setFormDescription(e.target.value)}
-            value={formDescription}
-            autoFocus
-          />
-        </div>
-
-        <div>
-          <label htmlFor="value">Valor</label>
-          <input
-            type="text"
-            id="value"
-            required
-            onChange={(e) => setFormValue(e.target.value)}
-            value={formValue}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="expiration">Vencimento</label>
-          <input
-            type="date"
-            id="expiration"
-            required
-            onChange={(e) => setFormExpiration(e.target.value)}
-            value={formExpiration}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="payment">Forma de pagamento</label>
-          <select
-            id="payment"
-            required
-            onChange={(e) => setFormPayment(e.target.value)}
-            defaultValue={formPayment}
+          <form
+            onSubmit={(e) => registerDocument(e)}
+            className="d-flex flex-column gap-3"
           >
-            {loadingPayments ? (
-              <option>Carregando...</option>
-            ) : !payments ? (
-              <option> - </option>
+            <div>
+              <label htmlFor="description">Descrição</label>
+              <input
+                className="form-control"
+                type="text"
+                id="description"
+                required
+                onChange={(e) => setFormDescription(e.target.value)}
+                value={formDescription}
+                autoFocus
+              />
+            </div>
+
+            <div className="d-flex gap-3">
+              <div className="col">
+                <label htmlFor="value">Valor</label>
+                <input
+                  className="form-control"
+                  type="text"
+                  id="value"
+                  required
+                  onChange={(e) => setFormValue(e.target.value)}
+                  value={formValue}
+                />
+              </div>
+
+              <div className="col">
+                <label htmlFor="expiration">Vencimento</label>
+                <input
+                  className="form-control"
+                  type="date"
+                  id="expiration"
+                  required
+                  onChange={(e) => setFormExpiration(e.target.value)}
+                  value={formExpiration}
+                />
+              </div>
+
+              <div className="col">
+                <label htmlFor="payment">Forma de pagamento</label>
+                <select
+                  id="payment"
+                  required
+                  onChange={(e) => setFormPayment(e.target.value)}
+                  defaultValue={formPayment}
+                  className="form-select"
+                >
+                  {loadingPayments ? (
+                    <option>Carregando...</option>
+                  ) : !payments ? (
+                    <option> - </option>
+                  ) : (
+                    payments.map((payment: any) => (
+                      <option key={payment.id} value={payment.id}>
+                        {payment.description}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              <div className="col">
+                <label htmlFor="situation">Situação</label>
+                <select
+                  id="situation"
+                  required
+                  onChange={(e) => setFormSituation(e.target.value)}
+                  defaultValue={formPayment}
+                  className="form-select"
+                >
+                  {loadingSituations ? (
+                    <option>Carregando...</option>
+                  ) : !situations ? (
+                    <option> - </option>
+                  ) : (
+                    situations.map((situation: any) => (
+                      <option key={situation.id} value={situation.id}>
+                        {situation.description}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+            </div>
+
+            {error ? <Error error={error} /> : null}
+
+            {success ? <Success message={success} /> : null}
+
+            {loadingPayments || loadingSituations || loadingRegister ? (
+              <input
+                className="btn btn-primary"
+                type="submit"
+                value="Carregando..."
+                disabled
+              />
+            ) : error ? (
+              <input
+                className="btn btn-primary"
+                type="submit"
+                value="Cadastrar"
+                disabled
+              />
             ) : (
-              payments.map((payment: any) => (
-                <option key={payment.id} value={payment.id}>
-                  {payment.description}
-                </option>
-              ))
+              <input
+                className="btn btn-primary"
+                type="submit"
+                value="Cadastrar"
+              />
             )}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="situation">Situação</label>
-          <select
-            id="situation"
-            required
-            onChange={(e) => setFormSituation(e.target.value)}
-          >
-            {loadingSituations ? (
-              <option>Carregando...</option>
-            ) : !situations ? (
-              <option> - </option>
-            ) : (
-              situations.map((situation: any) => (
-                <option key={situation.id} value={situation.id}>
-                  {situation.description}
-                </option>
-              ))
-            )}
-          </select>
-        </div>
-
-        {error ? <Error error={error} /> : null}
-
-        {success ? <Success message={success} /> : null}
-
-        {loadingPayments || loadingSituations || loadingRegister ? (
-          <input type="submit" value="Carregando..." disabled />
-        ) : error ? (
-          <input type="submit" value="Cadastrar" disabled />
-        ) : (
-          <input type="submit" value="Cadastrar" />
-        )}
-      </form>
+          </form>
+        </section>
+      </main>
     </>
   );
 };

@@ -33,35 +33,49 @@ export default () => {
         </>
       ) : null}
 
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <h1 style={{ margin: 0 }}>Contas a pagar</h1>
+      <nav className="navbar navbar-expand-lg bg-body-tertiary">
+        <div className="container">
+          <a className="navbar-brand" href="/">
+            Contas a pagar
+          </a>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
 
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <Link to="/">Página inicial</Link>
-            <Link to="/documents/new">Novo documento</Link>
+          <div className="collapse navbar-collapse" id="navbarNavDropdown">
+            <div className="navbar-nav">
+              <Link
+                to="/documents/new"
+                className="nav-link"
+                aria-current="page"
+              >
+                Novo documento
+              </Link>
+            </div>
+            <div className="ms-auto d-flex gap-3 align-items-center">
+              <span>{user?.name}</span>
+
+              <button
+                className="btn btn-outline-dark"
+                onClick={() => {
+                  setLogout();
+                  setUser(null);
+                }}
+              >
+                Sair
+              </button>
+            </div>
           </div>
         </div>
-
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <span>{user?.name}</span>
-
-          <button
-            onClick={() => {
-              setLogout();
-              setUser(null);
-            }}
-          >
-            Sair
-          </button>
-        </div>
-      </header>
+      </nav>
     </>
   );
 };
