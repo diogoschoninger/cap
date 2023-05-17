@@ -154,6 +154,8 @@ export default () => {
         setDocumentsLoading(false);
       });
 
+    listTotalClosed();
+    listTotalOpen();
     listDocuments();
   }
 
@@ -263,7 +265,7 @@ export default () => {
                     <td>
                       <button
                         onClick={() => closeDocument(document.id)}
-                        className="btn btn-success"
+                        className="btn btn-outline-success"
                       >
                         Baixar
                       </button>
