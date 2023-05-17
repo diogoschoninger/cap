@@ -1,1 +1,4 @@
-export default (date: string) => new Date(date).toLocaleDateString();
+export default (date: string) => {
+  const [y, m, d] = date.split('-');
+  return `${d}/${m}/${y}`;
+};
