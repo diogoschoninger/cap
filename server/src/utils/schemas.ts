@@ -29,6 +29,16 @@ export default {
     }),
   },
 
+  editDocument: {
+    body: Joi.object({
+      description: Joi.string().required(),
+      value: Joi.string().required(),
+      expiration: Joi.date().required(),
+      payment: Joi.number().required(),
+      situation: Joi.number().required(),
+    }),
+  },
+
   closeDocument: {
     params: Joi.object({
       id: Joi.number().required(),

@@ -26,16 +26,23 @@ router.post(
   controller.createDocument
 );
 router.get('/documents', jwtAuth, controller.listDocuments);
+router.get('/documents/:id', jwtAuth, controller.getDocument);
+router.put(
+  '/documents/:id',
+  validate(schemas.editDocument),
+  jwtAuth,
+  controller.editDocument
+);
 router.put(
   '/documents/close/:id',
   validate(schemas.closeDocument),
   jwtAuth,
   controller.closeDocument
 );
-router.get('/documents/total-registered', jwtAuth, controller.totalRegistered);
-router.get('/documents/total-closed', jwtAuth, controller.totalClosed);
-router.get('/documents/total-open', jwtAuth, controller.totalOpen);
-router.get('/documents/today', jwtAuth, controller.today);
-router.get('/documents/total-today', jwtAuth, controller.totalToday);
+router.get('/total-registered', jwtAuth, controller.totalRegistered);
+router.get('/total-closed', jwtAuth, controller.totalClosed);
+router.get('/total-open', jwtAuth, controller.totalOpen);
+router.get('/today', jwtAuth, controller.today);
+router.get('/total-today', jwtAuth, controller.totalToday);
 
 export default router;

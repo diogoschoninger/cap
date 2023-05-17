@@ -235,4 +235,60 @@ export default {
 
     res.status(200).send(data);
   }),
+
+  getDocument: asyncErrorHandler(async (req: Request, res: Response) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    const decoded: any = jwt.verify(
+      token as string,
+      jwtConfig.secret as Secret
+    );
+    const user_id = decoded.id;
+    const doc_id = req.params.id;
+
+    const [data, _meta] = await db.query(
+      `SELECT * FROM documents WHERE user_owner = ? AND id = ?`,
+      { replacements: [user_id, doc_id], type: QueryTypes.SELECT }
+    );
+
+    if (!data) {
+      res.status(404).send({
+        error: 'ID Inválido',
+        message: 'O ID solicitado não foi encontrado',
+      });
+      return;
+    }
+
+    res.status(200).send(data);
+  }),
+
+  editDocument: asyncErrorHandler(async (req: Request, res: Response) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    const decoded: any = jwt.verify(
+      token as string,
+      jwtConfig.secret as Secret
+    );
+    const user_id = decoded.id;
+    const doc_id = req.params.id;
+
+    const body = req.body;
+    body.value = stringToNumber(body.value);
+
+    const data = await db.query(
+      `UPDATE documents SET description = ?, value = ?, expiration = ?, payment = ?, situation = ? WHERE id = ? AND user_owner = ?`,
+      {
+        replacements: [
+          body.description,
+          body.value,
+          body.expiration,
+          body.payment,
+          body.situation,
+          doc_id,
+          user_id,
+        ],
+        type: QueryTypes.UPDATE,
+      }
+    );
+
+    res.status(200).send(data);
+  }),
 };

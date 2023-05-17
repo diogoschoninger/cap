@@ -35,14 +35,11 @@ export default () => {
 
     if (!user) return;
 
-    await fetch(
-      `${process.env.REACT_APP_SERVER_URL}/documents/total-registered`,
-      {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-    )
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/total-registered`, {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    })
       .then((res) => res.json())
       .then((res) => {
         if (res.error) return setUser(null);
@@ -65,7 +62,7 @@ export default () => {
 
     if (!user) return;
 
-    await fetch(`${process.env.REACT_APP_SERVER_URL}/documents/total-closed`, {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/total-closed`, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
@@ -92,7 +89,7 @@ export default () => {
 
     if (!user) return;
 
-    await fetch(`${process.env.REACT_APP_SERVER_URL}/documents/total-open`, {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/total-open`, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
@@ -119,7 +116,7 @@ export default () => {
 
     if (!user) return;
 
-    await fetch(`${process.env.REACT_APP_SERVER_URL}/documents/total-today`, {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/total-today`, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
@@ -146,7 +143,7 @@ export default () => {
 
     if (!user) return;
 
-    await fetch(`${process.env.REACT_APP_SERVER_URL}/documents/today`, {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/today`, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
@@ -342,10 +339,16 @@ export default () => {
                       <td>
                         <button
                           onClick={() => closeDocument(document.id)}
-                          className="btn btn-outline-success"
+                          className="btn btn-outline-success me-1"
                         >
                           Baixar
                         </button>
+                        <Link
+                          to={`/documents/edit/${document.id}`}
+                          className="btn btn-outline-primary"
+                        >
+                          Editar
+                        </Link>
                       </td>
                     </tr>
                   ))
@@ -399,10 +402,16 @@ export default () => {
                     <td>
                       <button
                         onClick={() => closeDocument(document.id)}
-                        className="btn btn-outline-success"
+                        className="btn btn-outline-success me-1"
                       >
                         Baixar
                       </button>
+                      <Link
+                        to={`/documents/edit/${document.id}`}
+                        className="btn btn-outline-primary"
+                      >
+                        Editar
+                      </Link>
                     </td>
                   </tr>
                 ))

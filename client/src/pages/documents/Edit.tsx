@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 
 import Error from '../../components/Error';
 import Header from '../../components/Header';
@@ -8,18 +8,21 @@ import Success from '../../components/Success';
 
 export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
+  const { id } = useParams();
 
   const [error, setError] = useState<any>(null);
   const [success, setSuccess] = useState<any>(null);
+
   const [loadingPayments, setLoadingPayments] = useState<boolean>(true);
   const [loadingSituations, setLoadingSituations] = useState<boolean>(true);
-  const [loadingRegister, setLoadingRegister] = useState<boolean>(false);
+  const [loadingDocument, setLoadingDocument] = useState<boolean>(true);
+  const [loadingEdit, setLoadingEdit] = useState<boolean>(false);
 
-  const [formDescription, setFormDescription] = useState<any>();
-  const [formExpiration, setFormExpiration] = useState<any>();
-  const [formValue, setFormValue] = useState<any>();
-  const [formPayment, setFormPayment] = useState<any>(null);
-  const [formSituation, setFormSituation] = useState<any>(null);
+  const [description, setDescription] = useState<any>();
+  const [expiration, setExpiration] = useState<any>();
+  const [value, setValue] = useState<any>();
+  const [payment, setPayment] = useState<any>(null);
+  const [situation, setSituation] = useState<any>(null);
 
   const [payments, setPayments] = useState<any>();
   const [situations, setSituations] = useState<any>();
@@ -76,55 +79,89 @@ export default () => {
       });
   }
 
-  function registerDocument(event: FormEvent) {
+  function getDocument() {
+    if (!user) return;
+
+    setLoadingDocument(true);
+
+    fetch(`${process.env.REACT_APP_SERVER_URL}/documents/${id}`, {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          if (res.error === 'ID Inválido') return setError(res);
+          else return setUser(null);
+        }
+
+        setDescription(res.description);
+        setValue(res.value);
+        setExpiration(res.expiration);
+        setPayment(res.payment);
+        setSituation(res.situation);
+
+        setLoadingDocument(false);
+      })
+      .catch((_err) => {
+        setError({
+          error: 'Servidor indisponível',
+          message: 'Não foi possível realizar a conexão com o servidor',
+        });
+        setLoadingDocument(false);
+      });
+  }
+
+  function editDocument(event: FormEvent) {
     event.preventDefault();
+
+    console.log({ description, value, expiration, payment, situation });
 
     setError(false);
     setSuccess(null);
-    setLoadingRegister(true);
+    setLoadingEdit(true);
 
-    fetch(`${process.env.REACT_APP_SERVER_URL}/documents`, {
-      method: 'POST',
+    fetch(`${process.env.REACT_APP_SERVER_URL}/documents/${id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${user.token}`,
       },
       body: JSON.stringify({
-        description: formDescription.toUpperCase(),
-        value: formValue,
-        expiration: formExpiration,
-        user_owner: user.id,
-        payment: !formPayment ? 1 : Number(formPayment),
-        situation: !formSituation ? 1 : Number(formSituation),
+        description: description.toUpperCase(),
+        value: value,
+        expiration: expiration,
+        payment: !payment ? 1 : payment,
+        situation: !situation ? 1 : situation,
       }),
     })
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
           setError(res);
-          setLoadingRegister(false);
+          setLoadingEdit(false);
           return;
         }
 
-        setSuccess('Documento criado com sucesso!');
-        setLoadingRegister(false);
-        setFormDescription('');
-        setFormValue('');
-        setFormExpiration('');
-        setFormPayment('');
-        setFormSituation('');
-        document.getElementById('description')?.focus();
+        setSuccess('Documento editado com sucesso!');
+        setLoadingEdit(false);
       })
       .catch((err) => {
         setError({
           error: 'Servidor indisponível',
           message: 'Não foi possível realizar a conexão com o servidor',
         });
-        setLoadingRegister(false);
+        setLoadingEdit(false);
       });
+
+    getDocument();
+    listPayments();
+    listSituations();
   }
 
   useEffect(() => {
+    getDocument();
     listPayments();
     listSituations();
   }, []);
@@ -144,10 +181,10 @@ export default () => {
         className="container mt-3"
       >
         <section className="d-flex flex-column gap-3">
-          <h2 className="m-0 text-center">Cadastrar novo documento</h2>
+          <h2 className="m-0 text-center">Editar documento</h2>
 
           <form
-            onSubmit={(e) => registerDocument(e)}
+            onSubmit={(e) => editDocument(e)}
             className="d-flex flex-column gap-3"
           >
             <div>
@@ -157,9 +194,8 @@ export default () => {
                 type="text"
                 id="description"
                 required
-                onChange={(e) => setFormDescription(e.target.value)}
-                value={formDescription}
-                autoFocus
+                defaultValue={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 
@@ -171,8 +207,8 @@ export default () => {
                   type="text"
                   id="value"
                   required
-                  onChange={(e) => setFormValue(e.target.value)}
-                  value={formValue}
+                  defaultValue={value}
+                  onChange={(e) => setValue(e.target.value)}
                 />
               </div>
 
@@ -183,30 +219,39 @@ export default () => {
                   type="date"
                   id="expiration"
                   required
-                  onChange={(e) => setFormExpiration(e.target.value)}
-                  value={formExpiration}
+                  defaultValue={expiration}
+                  onChange={(e) => setExpiration(e.target.value)}
                 />
               </div>
 
               <div className="col">
                 <label htmlFor="payment">Forma de pagamento</label>
                 <select
+                  className="form-select"
                   id="payment"
                   required
-                  onChange={(e) => setFormPayment(e.target.value)}
-                  defaultValue={formPayment}
-                  className="form-select"
+                  onChange={(e) => setPayment(Number(e.target.value))}
                 >
-                  {loadingPayments ? (
+                  {loadingPayments || loadingDocument ? (
                     <option>Carregando...</option>
                   ) : !payments ? (
                     <option> - </option>
                   ) : (
-                    payments.map((payment: any) => (
-                      <option key={payment.id} value={payment.id}>
-                        {payment.description}
-                      </option>
-                    ))
+                    payments.map((p: any) => {
+                      if (p.id === payment) {
+                        return (
+                          <option key={p.id} value={p.id} selected>
+                            {p.description}
+                          </option>
+                        );
+                      } else {
+                        return (
+                          <option key={p.id} value={p.id}>
+                            {p.description}
+                          </option>
+                        );
+                      }
+                    })
                   )}
                 </select>
               </div>
@@ -216,20 +261,30 @@ export default () => {
                 <select
                   id="situation"
                   required
-                  onChange={(e) => setFormSituation(e.target.value)}
-                  defaultValue={formSituation}
+                  onChange={(e) => setSituation(Number(e.target.value))}
+                  defaultValue={situation}
                   className="form-select"
                 >
-                  {loadingSituations ? (
+                  {loadingSituations || loadingDocument ? (
                     <option>Carregando...</option>
                   ) : !situations ? (
                     <option> - </option>
                   ) : (
-                    situations.map((situation: any) => (
-                      <option key={situation.id} value={situation.id}>
-                        {situation.description}
-                      </option>
-                    ))
+                    situations.map((s: any) => {
+                      if (s.id === situation) {
+                        return (
+                          <option key={s.id} value={s.id} selected>
+                            {s.description}
+                          </option>
+                        );
+                      } else {
+                        return (
+                          <option key={s.id} value={s.id}>
+                            {s.description}
+                          </option>
+                        );
+                      }
+                    })
                   )}
                 </select>
               </div>
@@ -239,7 +294,7 @@ export default () => {
 
             {success ? <Success message={success} /> : null}
 
-            {loadingPayments || loadingSituations || loadingRegister ? (
+            {loadingPayments || loadingSituations || loadingEdit ? (
               <input
                 className="btn btn-primary"
                 type="submit"
@@ -250,15 +305,11 @@ export default () => {
               <input
                 className="btn btn-primary"
                 type="submit"
-                value="Cadastrar"
+                value="Editar"
                 disabled
               />
             ) : (
-              <input
-                className="btn btn-primary"
-                type="submit"
-                value="Cadastrar"
-              />
+              <input className="btn btn-primary" type="submit" value="Editar" />
             )}
           </form>
         </section>
