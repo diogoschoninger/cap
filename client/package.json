@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "2.0.0-rc",
+  "version": "2.0.0",
   "author": "Diogo Schoninger (schoninger.diogo@gmail.com)",
   "license": "MIT",
   "scripts": {
