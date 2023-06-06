@@ -1,7 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import {
+  useEffect,
+  useState,
+} from 'react';
 
-import { getLoggedUser, setLogout } from '../services/auth';
+import {
+  Link,
+  Navigate,
+} from 'react-router-dom';
+
+import {
+  getLoggedUser,
+  setLogout,
+} from '../services/auth';
 
 export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
@@ -33,7 +43,7 @@ export default () => {
         </>
       ) : null}
 
-      <nav className="navbar navbar-expand-lg bg-body-tertiary">
+      <nav className="navbar navbar-expand-lg bg-body-tertiary position-sticky sticky-top">
         <div className="container">
           <a className="navbar-brand" href="/">
             Contas a pagar

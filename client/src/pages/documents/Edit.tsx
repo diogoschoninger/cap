@@ -1,10 +1,21 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import {
+  FormEvent,
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  Navigate,
+  useParams,
+} from 'react-router-dom';
 
 import Error from '../../components/Error';
 import Header from '../../components/Header';
-import { getLoggedUser, setLogout } from '../../services/auth';
 import Success from '../../components/Success';
+import {
+  getLoggedUser,
+  setLogout,
+} from '../../services/auth';
 
 export default () => {
   const [user, setUser] = useState<any>(JSON.parse(getLoggedUser() as string));
@@ -91,10 +102,7 @@ export default () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if (res.error) {
-          if (res.error === 'ID Inválido') return setError(res);
-          else return setUser(null);
-        }
+        if (res.error && res.error === 'Recurso não encontrado') return window.location.href = '/'
 
         setDescription(res.description);
         setValue(res.value);

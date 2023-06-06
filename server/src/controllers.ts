@@ -1,11 +1,20 @@
-import { Request, Response } from 'express';
+import {
+  Request,
+  Response,
+} from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { QueryTypes } from 'sequelize';
 
 import db from './db/config';
 import asyncErrorHandler from './middlewares/asyncError';
-import { encrypt, jwtConfig } from './utils/auth';
-import { AuthenticationError } from './utils/errors';
+import {
+  encrypt,
+  jwtConfig,
+} from './utils/auth';
+import {
+  AuthenticationError,
+  NotFoundError,
+} from './utils/errors';
 import safeCompare from './utils/safeCompare';
 import stringToNumber from './utils/stringToNumber';
 
@@ -31,19 +40,21 @@ export default {
   login: asyncErrorHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
-    const [result, _metadata]: any = await db.query(
-      `SELECT * FROM users WHERE email LIKE "${email}"`
+    const [result]: any = await db.query(
+      `SELECT * FROM users WHERE email LIKE "${email}"`, { type: QueryTypes.SELECT}
     );
 
-    if (result.length < 1) throw new AuthenticationError('Invalid credentials');
+    if (result.length < 1)
+      throw new NotFoundError(`Usuário com email ${email} não encontrado`);
 
-    const { password: userPassword, ...user } = result[0];
+    const { password: userPassword, ...user } = result;
+    console.log("RESULT: ", result)
 
     const encrypted = await encrypt(password);
 
     const isValid = await safeCompare(encrypted, userPassword);
 
-    if (!isValid) throw new AuthenticationError('Invalid credentials');
+    if (!isValid) throw new AuthenticationError('Senha inválida');
 
     const token = jwt.sign(user, jwtConfig.secret as Secret, {
       expiresIn: jwtConfig.expiration,
@@ -245,20 +256,15 @@ export default {
     const user_id = decoded.id;
     const doc_id = req.params.id;
 
-    const [data, _meta] = await db.query(
+    const [document] = await db.query(
       `SELECT * FROM documents WHERE user_owner = ? AND id = ?`,
       { replacements: [user_id, doc_id], type: QueryTypes.SELECT }
     );
 
-    if (!data) {
-      res.status(404).send({
-        error: 'ID Inválido',
-        message: 'O ID solicitado não foi encontrado',
-      });
-      return;
-    }
+    if (!document)
+      throw new NotFoundError(`Documento com id ${doc_id} não encontrado`);
 
-    res.status(200).send(data);
+    res.status(200).send(document);
   }),
 
   editDocument: asyncErrorHandler(async (req: Request, res: Response) => {

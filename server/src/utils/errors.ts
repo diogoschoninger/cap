@@ -1,19 +1,30 @@
 export class ValidationError extends Error {
   validations: any;
 
-  constructor({ message, validations }: any) {
-    super(message);
-    this.name = this.constructor.name;
+  constructor(validations: any) {
+    super('Parâmetros inválidos');
+    this.name = 'ValidationError';
     this.validations = validations;
   }
 }
 
-export class AuthenticationError extends Error {
-  cause: string;
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
 
-  constructor(cause = 'Não especificada') {
-    super('O usuário não pode ser autenticado');
-    this.name = this.constructor.name;
-    this.cause = cause;
+export class AuthenticationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
+
+export class AuthorizationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthorizationError';
   }
 }

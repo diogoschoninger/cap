@@ -27,10 +27,5 @@ export default ({
       return;
     }
 
-    next(
-      new ValidationError({
-        message: 'Invalid parameters',
-        validations: error.details,
-      })
-    );
+    next(new ValidationError(error.details));
   };
