@@ -44,11 +44,10 @@ export default {
       `SELECT * FROM users WHERE email LIKE "${email}"`, { type: QueryTypes.SELECT}
     );
 
-    if (result.length < 1)
+    if (!result)
       throw new NotFoundError(`Usuário com email ${email} não encontrado`);
 
     const { password: userPassword, ...user } = result;
-    console.log("RESULT: ", result)
 
     const encrypted = await encrypt(password);
 
